@@ -1,0 +1,125 @@
+/* ===== Fuentes y colores globales ===== */
+:root {
+  --primary-color: #4f46e5;       /* azul vibrante */
+  --secondary-color: #f59e0b;     /* amarillo/naranja para acentos */
+  --bg-color: #f9fafb;            /* fondo general */
+  --text-color: #111827;          /* texto principal */
+  --text-muted: #6b7280;          /* texto secundario */
+  --card-bg: #ffffff;             /* fondo de tarjetas */
+  --border-radius: 12px;          /* bordes redondeados */
+  --shadow: 0 4px 15px rgba(0,0,0,0.1);
+  --transition: 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* ===== Encabezados ===== */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-color);
+  font-weight: 700;
+}
+
+h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+h2 { font-size: 2rem; margin-bottom: 0.8rem; }
+h3 { font-size: 1.5rem; margin-bottom: 0.6rem; }
+
+/* ===== Enlaces ===== */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--secondary-color);
+}
+
+/* ===== Botones modernos ===== */
+button, .btn {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: var(--shadow);
+}
+
+button:hover, .btn:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* ===== Contenedores y secciones ===== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+section {
+  padding: 4rem 0;
+}
+
+/* ===== Tarjetas modernas ===== */
+.card {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* ===== Imágenes ===== */
+img {
+  max-width: 100%;
+  border-radius: var(--border-radius);
+}
+
+/* ===== Formularios ===== */
+input, textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+input:focus, textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  outline: none;
+}
+
+/* ===== Footer ===== */
+footer {
+  background-color: #111827;
+  color: #f9fafb;
+  padding: 2rem 0;
+  text-align: center;
+}
+
+footer a {
+  color: var(--secondary-color);
+}
