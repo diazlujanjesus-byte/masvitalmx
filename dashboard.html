@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Socio</title>
+<style>
+body { font-family: sans-serif; padding: 20px; }
+#userInfo { margin-bottom: 20px; }
+input { padding: 5px; margin-right: 5px; }
+button { padding: 5px 10px; margin-right: 5px; }
+</style>
+</head>
+<body>
+<div id="userInfo">
+  <p>Nombre: <span id="name"></span></p>
+  <input id="phone" placeholder="Tu WhatsApp" />
+  <button id="updateBtn">Actualizar</button>
+  <button id="reloginBtn">Cambiar usuario / Reingresar</button>
+</div>
+
+<script>
+const users = [
+  { id: 1, name: "Jesus Diaz", user: "jesusd", token: "Xy7F8aP9kL2", phone: "" },
+  { id: 2, name: "Maria Lopez", user: "marial", token: "G5kP9uL0vB", phone: "" }
+];
+
+let cookieUser = getCookie("user");
+let currentUser = users.find(u => u.user === cookieUser);
+
+if(!currentUser){
+  alert("Usuario no encontrado, vuelve a login");
+  window.location.href = "index.html";
+}
+
+document.getElementById("name").textContent = currentUser.name;
+
+if(!currentUser.phone){
+  const registerNow = confirm("No tienes tu número registrado. ¿Deseas registrarlo ahora?");
+  if(!registerNow) alert("Puedes registrarlo más tarde desde el campo de teléfono.");
+}
+
+// Actualizar número con ID
+document.getElementById("updateBtn").onclick = async () => {
+  const phoneValue = document.getElementById("phone").value.trim();
+  if(!phoneValue) return alert("Ingresa un número");
+
+  const idConfirm = prompt("Ingresa tu ID para actualizar número:");
+  if(idConfirm === currentUser.id.toString()){
+    try {
+      const res = await fetch("https://script.google.com/macros/s/AKfycbyCzb0Lgl-itCW7Rgy40jGekHmFnHZkaagji-p9V4IAKKMtPkt6tg4UJk2Qk_YGFMTIUA/exec", {
+        method: "POST",
+        body: JSON.stringify({user: currentUser.user, token: currentUser.token, phone: phoneValue})
+      });
+      const data = await res.json();
+      if(data.success){
+        alert("Número actualizado correctamente");
+        currentUser.phone = phoneValue;
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch(e) {
+      alert("Error al conectar con el servidor");
+    }
+  } else {
+    alert("ID incorrecto, no se pudo actualizar");
+  }
+};
+
+// Reingresar
+document.getElementById("reloginBtn").onclick = () => {
+  document.cookie = "user=; path=/; max-age=0";
+  window.location.href = "index.html";
+};
+
+function getCookie(name){
+  const c = document.cookie.split(";").find(row=>row.trim().startsWith(name+"="));
+  return c ? c.split("=")[1] : "";
+}
+</script>
+</body>
+</html>

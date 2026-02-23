@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Login Socios</title>
+<style>
+body { font-family: sans-serif; padding: 20px; }
+#results li { cursor: pointer; margin: 5px 0; }
+#results li:hover { background-color: #eee; }
+</style>
+</head>
+<body>
+<h2>Selecciona tu nombre</h2>
+<input id="search" placeholder="Escribe tu nombre" />
+<ul id="results"></ul>
+
+<script>
+// JSON de ejemplo (puede leerse desde Apps Script si quieres)
+const users = [
+  { id: 1, name: "Jesus Diaz", user: "jesusd", token: "Xy7F8aP9kL2" },
+  { id: 2, name: "Maria Lopez", user: "marial", token: "G5kP9uL0vB" }
+];
+
+const searchInput = document.getElementById("search");
+const results = document.getElementById("results");
+let selectedUser = null;
+
+// Motor de búsqueda
+searchInput.addEventListener("input", () => {
+  const value = searchInput.value.toLowerCase();
+  results.innerHTML = "";
+  users.forEach(u => {
+    if(u.name.toLowerCase().includes(value)) {
+      const li = document.createElement("li");
+      li.textContent = u.name;
+      li.onclick = () => {
+        selectedUser = u;
+        loginSelected();
+      };
+      results.appendChild(li);
+    }
+  });
+});
+
+function loginSelected(){
+  if(!selectedUser) return alert("Selecciona un usuario");
+  const idInput = prompt("Ingresa tu ID para acceder:");
+  if(idInput === selectedUser.id.toString()){
+    document.cookie = `user=${selectedUser.user}; path=/; max-age=${60*60*24*365}`;
+    window.location.href = "dashboard.html";
+  } else {
+    alert("ID incorrecto");
+  }
+}
+
+// Reingreso automático con cookie
+window.onload = () => {
+  const cookieUser = getCookie("user");
+  if(cookieUser){
+    window.location.href = "dashboard.html";
+  }
+};
+
+function getCookie(name){
+  const c = document.cookie.split("; ").find(row=>row.trim().startsWith(name+"="));
+  return c ? c.split("=")[1] : "";
+}
+</script>
+</body>
+</html>

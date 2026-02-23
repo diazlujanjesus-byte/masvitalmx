@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Landing pública</title>
+</head>
+<body>
+<h2>Contacto de Socio</h2>
+<div id="contactBtn"></div>
+
+<script>
+async function loadNumber(userId){
+  const res = await fetch("https://script.google.com/macros/s/AKfycbyCzb0Lgl-itCW7Rgy40jGekHmFnHZkaagji-p9V4IAKKMtPkt6tg4UJk2Qk_YGFMTIUA/exec");
+  const users = await res.json();
+  const u = users.find(u => u.user === userId);
+  if(u && u.phone){
+    const btn = document.createElement("a");
+    btn.href = `https://wa.me/${u.phone}`;
+    btn.textContent = "Contactar por WhatsApp";
+    btn.target = "_blank";
+    document.getElementById("contactBtn").appendChild(btn);
+  }
+}
+
+// Ejemplo: el usuario se pasa por URL ?user=jesusd
+const params = new URLSearchParams(window.location.search);
+const userId = params.get("user");
+if(userId) loadNumber(userId);
+</script>
+</body>
+</html>
