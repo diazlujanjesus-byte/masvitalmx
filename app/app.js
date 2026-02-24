@@ -10,7 +10,7 @@ if (nameSearch) {
         const query = e.target.value;
         if (query.length < 3) { resultsDiv.classList.add('hidden'); return; }
 
-        const response = await fetch(`${API_URL}?action=doGet&user=${query}`);
+        const response = await fetch(`${API_URL}`);
         const data = await response.json();
 
         resultsDiv.innerHTML = '';
@@ -35,7 +35,7 @@ function selectUser(user) {
 // --- Acciones ---
 async function login() {
     const id = document.getElementById('userId').value;
-    const response = await fetch(`${API_URL}?action=login&id=${id}`);
+    const response = await fetch(`${API_URL}`);
     const user = await response.json();
 
     if (user.success) {
@@ -61,7 +61,7 @@ async function updateData() {
 }
 
 async function fetchLandingData(slug) {
-    const response = await fetch(`${API_URL}?action=landing&user=${slug}`);
+    const response = await fetch(`${API_URL}`);
     const data = await response.json();
 
     document.title = data.nombre;
