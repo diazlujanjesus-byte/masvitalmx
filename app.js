@@ -10,7 +10,7 @@ if (nameSearch) {
         const query = e.target.value;
         if (query.length < 3) { resultsDiv.classList.add('hidden'); return; }
 
-        const response = await fetch(`${API_URL}?action=search&q=${query}`);
+        const response = await fetch(`${API_URL}?action=getUser&user=${query}`);
         const data = await response.json();
 
         resultsDiv.innerHTML = '';
