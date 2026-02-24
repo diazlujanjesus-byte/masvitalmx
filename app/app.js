@@ -1,80 +1,94 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyCzb0Lgl-itCW7Rgy40jGekHmFnHZkaagji-p9V4IAKKMtPkt6tg4UJk2Qk_YGFMTIUA/exec"; // Reemplazar con el Web App URL
+const API_URL = "https://script.google.com/macros/s/AKfycbyvV7H1pQijy7BtzsR12CCTjIXsy2IyKUYenq5NKizL-1yzNNUUtey475jQEqYZxwYXaA/exec";
 
-// --- Lógica de Búsqueda y Autocompletado ---
-const nameSearch = document.getElementById('nameSearch');
-const resultsDiv = document.getElementById('results');
-const idSection = document.getElementById('idSection');
+/* ====== LOGIN ====== */
 
-if (nameSearch) {
-    nameSearch.addEventListener('input', async (e) => {
-        const query = e.target.value;
-        if (query.length < 3) { resultsDiv.classList.add('hidden'); return; }
+async function searchUsers(query, container) {
+  container.innerHTML = "";
 
-        const response = await fetch(`${API_URL}`);
-        const data = await response.json();
+  if (query.length < 3) return;
 
-        resultsDiv.innerHTML = '';
-        data.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'result-item';
-            div.innerText = item.nombre;
-            div.onclick = () => selectUser(item);
-            resultsDiv.appendChild(div);
-        });
-        resultsDiv.classList.remove('hidden');
-    });
+  const res = await fetch(`${API_URL}?action=search&q=${encodeURIComponent(query)}`);
+  const users = await res.json();
+
+  users.forEach(u => {
+    const li = document.createElement("li");
+    li.textContent = u.name;
+    li.onclick = () => {
+      localStorage.setItem("temp_id", u.id);
+      document.getElementById("idSection").style.display = "block";
+    };
+    container.appendChild(li);
+  });
 }
 
-function selectUser(user) {
-    nameSearch.value = user.nombre;
-    localStorage.setItem('temp_id', user.id);
-    resultsDiv.classList.add('hidden');
-    idSection.classList.remove('hidden');
-}
-
-// --- Acciones ---
 async function login() {
-    const id = document.getElementById('userId').value;
-    const response = await fetch(`${API_URL}`);
-    const user = await response.json();
+  const id = document.getElementById("userId").value;
+  const selectedId = localStorage.getItem("temp_id");
 
-    if (user.success) {
-        localStorage.setItem('name', user.nombre);
-        localStorage.setItem('whatsapp', user.whatsapp);
-        window.location.href = 'dashboard.html';
-    } else {
-        alert('ID incorrecto');
-    }
+  if (id !== selectedId) {
+    alert("ID incorrecto");
+    return;
+  }
+
+  const res = await fetch(`${API_URL}?action=login&id=${id}`);
+  const data = await res.json();
+
+  if (!data.ok) {
+    alert("Login inválido");
+    return;
+  }
+
+  localStorage.setItem("user", JSON.stringify(data.user));
+  window.location.href = "dashboard.html";
 }
 
-async function updateData() {
-    const id = prompt("Por seguridad, ingresa tu ID nuevamente:");
-    const wa = document.getElementById('userWhatsApp').value;    const response = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'update', id, whatsapp: wa })
-    });
+/* ====== DASHBOARD ====== */
 
-    if (response.ok) {
-        alert('Datos actualizados');
-        localStorage.setItem('whatsapp', wa);
-    }
+function loadDashboard() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user) return (window.location.href = "index.html");
+
+  document.getElementById("name").textContent = user.name;
+  document.getElementById("phone").value = user.phone || "";
 }
 
-async function fetchLandingData(slug) {
-    const response = await fetch(`${API_URL}`);
-    const data = await response.json();
+async function updatePhone() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const phone = document.getElementById("phone").value;
 
-    document.title = data.nombre;
-    document.getElementById('landingTitle').innerText = data.nombre;
-    document.getElementById('waLink').href = `https://wa.me/${data.whatsapp}?text=Hola%20${data.nombre},%20deseo%20más%20información`;
-    document.getElementById('regLink').href = `https://my.vitalhealthglobal.com/${data.usuario}`;
+  const idConfirm = prompt("Confirma tu ID");
+  if (idConfirm !== user.id.toString()) {
+    alert("ID incorrecto");
+    return;
+  }
+
+  await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: "update",
+      id: user.id,
+      phone
+    })
+  });
+
+  alert("Número actualizado");
 }
 
 function logout() {
-    localStorage.clear();
-    window.location.href = 'index.html';
+  localStorage.clear();
+  window.location.href = "index.html";
 }
 
-if(document.getElementById('loginBtn')) {
-    document.getElementById('loginBtn').onclick = login;
+/* ====== LANDING ====== */
+
+async function loadLanding(slug) {
+  const res = await fetch(`${API_URL}?action=landing&user=${slug}`);
+  const data = await res.json();
+
+  if (!data.phone) return;
+
+  const btn = document.getElementById("whatsappBtn");
+  btn.href = `https://wa.me/${data.phone}`;
+  btn.style.display = "inline-block";
 }

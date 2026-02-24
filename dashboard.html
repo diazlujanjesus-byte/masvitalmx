@@ -1,27 +1,37 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Perfil</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Perfil</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1 id="userName">Hola, Socio</h1>
-        <p>Actualiza tu número de contacto</p>        <div class="form-group">
-            <label>WhatsApp</label>
-            <input type="tel" id="userWhatsApp" placeholder="Ej: 521234567890">
-        </div>
+  <div class="container">
+    <h1 id="userName">Hola</h1>
+    <p>Actualiza tu número de contacto</p>
 
-        <button class="btn btn-primary" onclick="updateData()">Actualizar</button>
-        <button class="btn btn-ghost" onclick="logout()">¿No eres esta persona? Volver a ingresar</button>
+    <div class="form-group">
+      <label>WhatsApp</label>
+      <input
+        type="tel"
+        id="userWhatsApp"
+        placeholder="Ej: 521234567890"
+      >
     </div>
-    <script src="app/app.js?v=" + Date.now()</script>
-    <script>
-        // Cargar datos al iniciar
-        document.getElementById('userName').innerText = localStorage.getItem('name') || 'Socio';
-        document.getElementById('userWhatsApp').value = localStorage.getItem('whatsapp') || '';
-    </script>
+
+    <button class="btn" onclick="updatePhone()">
+      Actualizar número
+    </button>
+
+    <button class="btn secondary" onclick="logout()">
+      ¿No eres tú? Volver a ingresar
+    </button>
+  </div>
+
+  <script src="app/app.js?v=1.0.1"></script>
+  <script>
+    loadDashboard();
+  </script>
 </body>
 </html>
