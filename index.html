@@ -1,66 +1,263 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Login Socios</title>
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Socios | Premium</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #10b981; /* Esmeralda Salud */
+            --primary-dark: #059669;            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --radius: 24px;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.04), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 440px;
+            padding: 40px 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        /* Navegación entre pantallas */
+        .screen { display: none; animation: fadeIn 0.5s ease forwards; }
+        .screen.active { display: flex; flex-direction: column; gap: 24px; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tipografía */
+        h1 { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.025em; text-align: center; }
+        p { font-size: 1rem; color: var(--text-muted); text-align: center; line-height: 1.5; }
+
+        /* Inputs Modernos */
+        .input-group { position: relative; width: 100%; }
+        input {
+            width: 100%;
+            padding: 18px 20px;            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 1rem;
+            background: #f1f5f9;
+            transition: all 0.3s;
+            outline: none;
+        }
+        input:focus {
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        /* Resultados de búsqueda */
+        .search-results {
+            list-style: none;
+            background: white;
+            border-radius: 16px;
+            margin-top: 8px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            position: absolute;            width: 100%;
+            z-index: 10;
+        }
+        .search-results li {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .search-results li:hover { background: #f8fafc; color: var(--primary); }
+
+        /* Botones */
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-link { background: transparent; color: var(--text-muted); font-size: 0.9rem; text-decoration: underline; }
+
+        /* Landing Premium Elements */
+        .status-badge {
+            background: #ecfdf5; color: #059669; padding: 8px 16px; border-radius: 100px;
+            font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; align-self: center;
+        }
+        .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .wa-premium-btn {
+            background: #25D366; color: white; text-decoration: none; width: 100%; padding: 20px;
+            border-radius: 18px; display: flex; align-items: center; justify-content: center; gap: 12px;
+            font-weight: 600; box-shadow: 0 15px 30px rgba(37, 211, 102, 0.25);
+        }
+
+        .hidden { display: none !important; }
+        .loader { border: 2px solid #f3f3f3; border-top: 2px solid white; border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
-<h2>Selecciona tu nombre</h2>
-<input id="search" placeholder="Escribe tu nombre" />
-<ul id="results"></ul>
+
+<div class="app-container">
+    <!-- PANTALLA 1: LOGIN -->
+    <div id="screen-login" class="screen active">
+        <div>
+            <h1>Bienvenido</h1>
+            <p>Ingresa tu nombre para acceder</p>
+        </div>
+        <div class="input-group">
+            <input type="text" id="search-name" placeholder="Escribe tu nombre..." autocomplete="off">
+            <ul id="results" class="search-results hidden"></ul>
+        </div>
+        <div id="id-section" class="hidden" style="display: flex; flex-direction: column; gap: 20px;">
+            <input type="password" id="user-id" placeholder="Tu ID / Contraseña">
+            <button class="btn btn-primary" onclick="handleLogin()">
+                <span id="btn-text">Acceder</span>
+                <div id="loader" class="loader hidden"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- PANTALLA 2: DASHBOARD -->
+    <div id="screen-dashboard" class="screen">
+        <div>
+            <h1 id="welcome-name">Hola</h1>
+            <p>Actualiza tu número de contacto</p>        </div>
+        <div class="input-group">
+            <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; display: block;">WhatsApp</label>
+            <input type="tel" id="user-wa" placeholder="+54 9 ...">
+        </div>
+        <button class="btn btn-primary" onclick="handleUpdate()">Actualizar Datos</button>
+        <button class="btn btn-link" onclick="logout()">¿No eres tú? Cerrar sesión</button>
+    </div>
+
+    <!-- PANTALLA 3: LANDING PÚBLICA -->
+    <div id="screen-landing" class="screen">
+        <div class="status-badge"><span class="status-dot"></span> Disponible ahora</div>
+        <h1>Atención Directa</h1>
+        <p>Conecta con nuestro equipo de bienestar de forma inmediata vía WhatsApp.</p>
+        <a id="wa-link" href="#" class="wa-premium-btn">Iniciar Chat</a>
+        <p style="font-size: 0.8rem;">Respuesta media: < 15 min</p>
+    </div>
+</div>
 
 <script>
-// JSON de ejemplo (puede leerse desde Apps Script si quieres)
-const users = [
-  { id: 1, name: "Jesus Diaz", user: "jesusd", token: "Xy7F8aP9kL2" },
-  { id: 2, name: "Maria Lopez", user: "marial", token: "G5kP9uL0vB" }
-];
+    const API_URL = "TU_URL_DE_APPS_SCRIPT"; 
+    let selectedUser = null;
 
-const searchInput = document.getElementById("search");
-const results = document.getElementById("results");
-let selectedUser = null;
+    // Búsqueda en tiempo real
+    document.getElementById('search-name').addEventListener('input', async (e) => {
+        const val = e.target.value;
+        if (val.length < 3) return;
+                const res = await fetch(`${API_URL}?action=search&q=${val}`);
+        const users = await res.json();
+        const list = document.getElementById('results');
+        list.innerHTML = '';        
+        users.forEach(u => {
+            const li = document.createElement('li');
+            li.textContent = u.nombre;
+            li.onclick = () => {
+                selectedUser = u;                document.getElementById('search-name').value = u.nombre;
+                list.classList.add('hidden');
+                document.getElementById('id-section').classList.remove('hidden');
+            };
+            list.appendChild(li);
+        });
+        list.classList.remove('hidden');
+    });
 
-// Motor de búsqueda
-searchInput.addEventListener("input", () => {
-  const value = searchInput.value.toLowerCase();
-  results.innerHTML = "";
-  users.forEach(u => {
-    if(u.name.toLowerCase().includes(value)) {
-      const li = document.createElement("li");
-      li.textContent = u.name;
-      li.onclick = () => {
-        selectedUser = u;
-        loginSelected();
-      };
-      results.appendChild(li);
+    async function handleLogin() {
+        const id = document.getElementById('user-id').value;
+        toggleLoader(true);
+        
+        const res = await fetch(`${API_URL}?action=login&nombre=${selectedUser.nombre}&id=${id}`);
+        const data = await res.json();
+
+        if (data.success) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+            showDashboard(data.user);
+        } else {
+            alert("ID incorrecto");
+        }
+        toggleLoader(false);
     }
-  });
-});
 
-function loginSelected(){
-  if(!selectedUser) return alert("Selecciona un usuario");
-  const idInput = prompt("Ingresa tu ID para acceder:");
-  if(idInput === selectedUser.id.toString()){
-    document.cookie = `user=${selectedUser.user}; path=/; max-age=${60*60*24*365}`;
-    window.location.href = "dashboard.html";
-  } else {
-    alert("ID incorrecto");
-  }
-}
+    function showDashboard(user) {
+        switchScreen('screen-dashboard');
+        document.getElementById('welcome-name').textContent = `Hola, ${user.nombre.split(' ')[0]}`;
+        document.getElementById('user-wa').value = user.whatsapp || '';
+    }
 
-// Reingreso automático con cookie
-window.onload = () => {
-  const cookieUser = getCookie("user");
-  if(cookieUser){
-    window.location.href = "dashboard.html";
-  }
-};
+    async function handleUpdate() {
+        const id = prompt("Confirma tu ID para guardar cambios:");
+        if (!id) return;        const wa = document.getElementById('user-wa').value;
+        const user = JSON.parse(localStorage.getItem('user'));
 
-function getCookie(name){
-  const c = document.cookie.split("; ").find(row=>row.trim().startsWith(name+"="));
-  return c ? c.split("=")[1] : "";
-}
+        const res = await fetch(API_URL, {
+            method: 'POST',            body: JSON.stringify({ action: 'update', nombre: user.nombre, id: id, whatsapp: wa })
+        });
+        const data = await res.json();
+        if (data.success) alert("¡Actualizado con éxito!");
+        else alert("ID incorrecto");
+    }
+
+    function switchScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function toggleLoader(show) {
+        document.getElementById('loader').classList.toggle('hidden', !show);
+        document.getElementById('btn-text').classList.toggle('hidden', show);
+    }
+
+    function logout() {
+        localStorage.clear();
+        location.reload();
+    }
+
+    window.onload = async () => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('public')) {
+            switchScreen('screen-landing');
+            const res = await fetch(`${API_URL}?action=getPublicNum`);
+            const data = await res.json();
+            document.getElementById('wa-link').href = `https://wa.me/${data.num}`;
+        } else if (localStorage.getItem('user')) {
+            showDashboard(JSON.parse(localStorage.getItem('user')));
+        }
+    };
 </script>
 </body>
 </html>
