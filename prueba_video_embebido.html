@@ -1,0 +1,45 @@
+<div id="player"></div>
+
+<div class="acciones-video">
+  <button id="playBtn">Play</button>
+  <button id="pauseBtn">Pause</button>
+  <button id="stopBtn">Stop</button>
+  <button id="shareBtn">Compartir</button>
+  <a href="https://tu-dominio.com/videos/mi-video.mp4" download>
+    <button type="button">Descargar</button>
+  </a>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+  let player;
+  const youtubeUrl = "https://youtube.com/zUJ0AcfZWI4";
+
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+      height: '360',
+      width: '640',
+      videoId: 'zUJ0AcfZWI4',
+      playerVars: {
+        controls: 0,   // oculta controles de YouTube
+        rel: 0,        // relacionados limitados
+        fs: 0          // opcional: ocultar fullscreen
+      }
+    });
+  }
+
+  document.getElementById('playBtn').onclick = () => player?.playVideo();
+  document.getElementById('pauseBtn').onclick = () => player?.pauseVideo();
+  document.getElementById('stopBtn').onclick = () => player?.stopVideo();
+
+  document.getElementById('shareBtn').onclick = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Mi video', url: youtubeUrl });
+      } else {
+        await navigator.clipboard.writeText(youtubeUrl);
+        alert('Enlace copiado');
+      }
+    } catch (e) {}
+  };
+</script>
