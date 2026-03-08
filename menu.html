@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Página Inicial</title>
+  <link rel="stylesheet" href="css/site.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    (function () {
+      try {
+        const raw = localStorage.getItem("session");
+        if (!raw) return location.replace("login.html");
+
+        const s = JSON.parse(raw);
+        if (!s?.expiresAt || Date.now() > s.expiresAt) {
+          localStorage.removeItem("session");
+          return location.replace("login.html");
+        }
+      } catch (e) {
+        localStorage.removeItem("session");
+        location.replace("login.html");
+      }
+    })();
+  </script>
+  <style>
+	.topbar-settings {
+	  width: 34px;
+	  height: 34px;
+	  min-width: 34px;
+	  min-height: 34px;
+	  padding: 0;
+	  display: inline-flex;
+	  align-items: center;
+	  justify-content: center;
+	  flex: 0 0 34px;
+	  border-radius: 50%;
+	  color: #fff;
+	  text-decoration: none;
+	  background: rgba(255, 255, 255, 0.06);
+	  border: 1px solid rgba(255, 255, 255, 0.08);
+	  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+	  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+	}
+
+	.topbar-settings:hover,
+	.topbar-settings:focus-visible {
+	  transform: translateY(-1px);
+	  background: rgba(255, 255, 255, 0.10);
+	  box-shadow: 0 12px 24px rgba(139, 92, 246, 0.22);
+	}
+
+	.topbar-settings .lucide {
+	  width: 16px;
+	  height: 16px;
+	}
+	.topbar-actions {
+	  display: flex;
+	  align-items: center;
+	  gap: 12px;
+	}
+  </style>
+</head>
+<body>
+  <div class="inicio-shell">
+    <header class="dash-topbar">
+      <button class="dash-menu-btn" type="button" aria-label="Menú">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="dash-socio">
+        <div class="dash-socio-line">
+          <strong id="userName">—</strong>
+        </div>
+        <div class="dash-relogin">
+          
+        </div>
+      </div>
+	  <div class="topbar-actions">
+		<a href="#" id="reloginLink"><i class="dash-inline-icon" data-lucide="log-out"></i></a>
+		
+		<a class="topbar-settings" href="settings.html" aria-label="Configuración">
+		  <i data-lucide="sliders-horizontal"></i>
+		</a>
+
+		<a class="topbar-rewards" href="rewards.html" aria-label="Programa de Recompensas">
+		  <i data-lucide="gem"></i>
+		</a>
+		</div>
+    </header>
+
+    <main class="inicio-main">
+      <section class="inicio-center-card">
+        <aside class="hero-pane">
+          <div class="hero-badge">
+            <i class="dash-inline-icon" data-lucide="sparkles"></i>
+            Inicio rápido
+          </div>
+          <h1 class="hero-title">Panel de accesos</h1>
+          <p class="hero-desc">
+            Accede rápidamente a los videos de productos, testimonios, recomendaciones de los expertos. Compártelos de forma práctica con tus conocidos, consultantes y prospectos.
+          </p>
+          <div class="hero-pills">
+            <span class="pill">Testimonios de Salud</span>
+            <span class="pill">Recomendaciones</span>
+            <span class="pill">Contenido digital</span>
+          </div>
+        </aside>
+        <section class="actions-pane" aria-label="Accesos principales">
+          <h2 class="actions-title">Bienvenido</h2>
+          <p class="lead">Selecciona lo que deseas compartir</p>
+          <div class="buttons">
+            <a class="btn btn-primary btn-action" href="content.html">
+              <i data-lucide="play-circle" class="btn-icon"></i>
+              <span>Contenido</span>
+            </a>
+            <a class="btn btn-secondary btn-action" href="#registro">
+              <i data-lucide="user-plus" class="btn-icon"></i>
+              <span>Enlace de Registro</span>
+            </a>
+            <a class="btn btn-accent btn-action" href="#venta">
+              <i data-lucide="badge-dollar-sign" class="btn-icon"></i>
+              <span>Enlace de Ventas</span>
+            </a>
+          </div>
+          <p class="footer-note">Herramienta para uso exclusivo de nuestros socios</p>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const nameEl = document.getElementById('userName');
+      const reloginLink = document.getElementById('reloginLink');
+
+      const storedName = localStorage.getItem('name') || localStorage.getItem('userName') || 'Usuario';
+      nameEl.textContent = storedName;
+
+      reloginLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        localStorage.removeItem('session');
+        window.location.href = 'login.html';
+      });
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    })();
+  </script>
+  <script src="app/app.js?v=1.0.2"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof loadDashboard === 'function') loadDashboard();
+    });
+  </script>
+</body>
+</html>

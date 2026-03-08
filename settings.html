@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuración</title>
+  <meta name="description" content="Configuración de la cuenta y preferencias del socio." />
+  <link rel="stylesheet" href="css/site.css" />
+  <link rel="stylesheet" href="css/style_settings.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    (function () {
+      try {
+        const raw = localStorage.getItem("session");
+        if (!raw) return location.replace("login.html");
+
+        const s = JSON.parse(raw);
+        if (!s?.expiresAt || Date.now() > s.expiresAt) {
+          localStorage.removeItem("session");
+          return location.replace("login.html");
+        }
+      } catch (e) {
+        localStorage.removeItem("session");
+        location.replace("login.html");
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="inicio-shell">
+    <header class="dash-topbar">
+      <a class="dash-menu-btn" href="menu.html" aria-label="Volver al menú">
+        <i data-lucide="menu"></i>
+      </a>
+
+      <div class="dash-socio">
+        <div class="dash-socio-line">
+          <strong id="userName">—</strong>
+        </div>
+        <div class="dash-relogin"></div>
+      </div>
+
+      <a href="#" id="reloginLink" aria-label="Cerrar sesión">
+        <i class="dash-inline-icon" data-lucide="log-out"></i>
+      </a>
+
+      <a class="topbar-rewards" href="rewards.html" aria-label="Programa de Recompensas">
+        <i data-lucide="gem"></i>
+      </a>
+    </header>
+
+    <main class="inicio-main">
+      <section class="inicio-center-card settings-layout">
+        <aside class="hero-pane settings-hero">
+          <div class="hero-badge">
+            <i class="dash-inline-icon" data-lucide="sliders-horizontal"></i>
+            Ajustes de cuenta
+          </div>
+          <h1 class="hero-title">Configuración</h1>
+          <p class="hero-desc">
+            Administra tus preferencias principales, revisa tu sesión actual y mantén actualizada la información de contacto que usarás dentro del sitio.
+          </p>
+          <div class="hero-pills">
+            <span class="pill">Perfil</span>
+            <span class="pill">Contacto</span>
+            <span class="pill">Preferencias</span>
+          </div>
+        </aside>
+
+        <section class="actions-pane settings-actions" aria-label="Opciones de configuración">
+          <h2 class="actions-title">Tu cuenta</h2>
+          <p class="lead">Consulta y actualiza tus ajustes principales</p>
+
+          <div class="settings-stack">
+            <section class="settings-card" aria-labelledby="perfil-title">
+              <div class="settings-card-header">
+                <i data-lucide="user-round"></i>
+                <div>
+                  <h3 class="settings-card-title" id="perfil-title">Perfil</h3>
+                  <p class="settings-card-subtitle">Información básica de la cuenta activa.</p>
+                </div>
+              </div>
+
+              <div class="settings-grid-2">
+                <div class="settings-field">
+                  <label for="settingsUserName">Nombre</label>
+                  <input class="settings-input" id="settingsUserName" type="text" value="" readonly />
+                </div>
+                <div class="settings-field">
+                  <label for="userWhatsApp">WhatsApp</label>
+                  <input class="settings-input" id="userWhatsApp" type="tel" placeholder="Ingresa tu número" />
+                </div>
+              </div>
+
+              <button class="btn btn-secondary btn-action settings-btn" id="saveWhatsAppBtn" type="button">
+                <i class="dash-inline-icon" data-lucide="save"></i>
+                <span>Guardar número</span>
+              </button>
+            </section>
+
+            <section class="settings-card" id="confirmSection" aria-labelledby="confirm-title">
+              <div class="settings-card-header">
+                <i data-lucide="badge-check"></i>
+                <div>
+                  <h3 class="settings-card-title" id="confirm-title">Confirmación</h3>
+                  <p class="settings-card-subtitle">Verifica el teléfono que deseas usar dentro de la plataforma.</p>
+                </div>
+              </div>
+
+              <div class="settings-field">
+                <label for="confirmId">Código o identificador</label>
+                <input class="settings-input" id="confirmId" type="text" placeholder="Ingresa el código de confirmación" />
+              </div>
+
+              <div class="settings-button-grid">
+                <button class="btn btn-primary btn-action settings-btn" id="confirmPhoneBtn" type="button">
+                  <i class="dash-inline-icon" data-lucide="shield-check"></i>
+                  <span>Confirmar</span>
+                </button>
+                <button class="btn btn-accent btn-action settings-btn" id="cancelPhoneBtn" type="button">
+                  <i class="dash-inline-icon" data-lucide="x"></i>
+                  <span>Cancelar</span>
+                </button>
+              </div>
+              <p class="settings-status" id="confirmError">&nbsp;</p>
+            </section>
+
+            <section class="settings-card" aria-labelledby="preferencias-title">
+              <div class="settings-card-header">
+                <i data-lucide="sparkles"></i>
+                <div>
+                  <h3 class="settings-card-title" id="preferencias-title">Preferencias</h3>
+                  <p class="settings-card-subtitle">Define cómo quieres utilizar algunas funciones del sistema.</p>
+                </div>
+              </div>
+
+              <div class="settings-field">
+                <label for="themeSelect">Apariencia</label>
+                <select class="settings-select" id="themeSelect">
+                  <option value="default">Predeterminada</option>
+                  <option value="light">Clara</option>
+                  <option value="dark">Oscura</option>
+                </select>
+              </div>
+
+              <label class="settings-toggle-row" for="useInLanding">
+                <span>Usar en landing</span>
+                <input id="useInLanding" type="checkbox" />
+              </label>
+
+              <p class="settings-status" id="useLandingStatus">Sin cambios guardados.</p>
+            </section>
+          </div>
+
+          <div class="settings-actions-row">
+            <a class="btn btn-secondary btn-action settings-btn" href="menu.html">
+              <i class="dash-inline-icon" data-lucide="arrow-left"></i>
+              <span>Volver al menú</span>
+            </a>
+            <button class="btn btn-primary btn-action settings-btn" id="reloginBtn" type="button">
+              <i class="dash-inline-icon" data-lucide="log-out"></i>
+              <span>Cerrar sesión</span>
+            </button>
+          </div>
+
+          <p class="footer-note">Mantén tus datos al día para una experiencia más fluida dentro del sitio.</p>
+        </section>
+      </section>
+    </main>
+  </div>
+  <script>
+    (function () {
+      const nameEl = document.getElementById('userName');
+      const reloginLink = document.getElementById('reloginLink');
+      const storedName = localStorage.getItem('name') || localStorage.getItem('userName') || 'Usuario';
+      nameEl.textContent = storedName;
+
+      reloginLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        localStorage.removeItem('session');
+        window.location.href = 'login.html';
+      });
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    })();
+  </script>
+  <script src="app/app.js?v=1.0.2"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof loadDashboard === 'function') loadDashboard();
+    });
+  </script>
+</body>
+</html>

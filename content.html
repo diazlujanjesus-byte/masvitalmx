@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contenido</title>
+  <link rel="stylesheet" href="css/site.css" />
+  <link rel="stylesheet" href="css/style_content.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    (function () {
+      try {
+        const raw = localStorage.getItem('session');
+        if (!raw) return location.replace('login.html');
+
+        const s = JSON.parse(raw);
+        if (!s?.expiresAt || Date.now() > s.expiresAt) {
+          localStorage.removeItem('session');
+          return location.replace('login.html');
+        }
+      } catch (e) {
+        try { localStorage.removeItem('session'); } catch (_) {}
+        location.replace('login.html');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="content-shell">
+    <header class="dash-topbar">
+      <button class="dash-menu-btn" type="button" aria-label="Menú" onclick="window.location.href='menu.html'">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <div class="dash-socio">
+        <div class="dash-socio-line">
+          <strong id="userName">—</strong>
+        </div>
+        <div class="dash-relogin"></div>
+      </div>
+
+      <a href="#" id="reloginLink" aria-label="Cerrar sesión">
+        <i class="dash-inline-icon" data-lucide="log-out"></i>
+      </a>
+
+      <a class="topbar-rewards" href="rewards.html" aria-label="Programa de Recompensas">
+        <i data-lucide="gem"></i>
+      </a>
+    </header>
+
+    <main class="content-main">
+      <section class="content-card">
+        <div class="content-layout">
+          <section class="content-hero">
+            <div class="content-badge">
+              <i class="dash-inline-icon" data-lucide="sparkles"></i>
+              Biblioteca digital
+            </div>
+            <h1 class="content-title">Contenido para compartir</h1>
+            <p class="content-desc">
+              Encuentra videos e imágenes listos para enviar a tus prospectos, clientes y consultantes. Filtra por tipo de material, categoría o tema y comparte en segundos.
+            </p>
+            <div class="content-pills">
+              <span class="pill">Videos</span>
+              <span class="pill">Imágenes</span>
+              <span class="pill">Productos</span>
+              <span class="pill">Testimonios</span>
+              <span class="pill">Recomendaciones</span>
+            </div>
+          </section>
+
+          <section class="content-panel">
+            <div class="panel-head">
+              <div class="panel-title-wrap">
+                <p class="panel-kicker">Explora el material</p>
+                <h2 class="panel-title">Filtra y comparte</h2>
+                <p class="panel-desc">Usa los filtros para encontrar el material ideal y abrir sus opciones de compartir, copiar enlace o descargar.</p>
+              </div>
+            </div>
+
+            <div class="filters">
+              <div class="field">
+                <label for="materialType">Tipo de material</label>
+                <select id="materialType">
+                  <option value="todo">Todo</option>
+                  <option value="video">Videos</option>
+                  <option value="imagen">Imágenes</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="contentType">Tipo de contenido</label>
+                <select id="contentType">
+                  <option value="todo">Todo</option>
+                  <option value="producto">Productos</option>
+                  <option value="testimonio">Testimonios</option>
+                  <option value="recomendacion">Recomendaciones</option>
+                </select>
+              </div>
+
+              <div class="search-row">
+                <div class="field">
+                  <label for="q">Buscar</label>
+                  <input id="q" type="search" placeholder="Ej: Artritis" />
+                </div>
+
+                <button id="btnSearch" class="btn btn-primary btn-action" type="button">
+                  <i data-lucide="search"></i>
+                  <span>Buscar</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="results"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Vista previa">
+      <div class="modal-header">
+        <div class="mh-title" id="modalTitle">Vista previa</div>
+        <button class="icon-btn" id="modalClose" type="button" aria-label="Cerrar">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="preview-wrap" id="modalMediaWrap"></div>
+
+        <div class="modal-actions">
+          <a id="modalShare" class="btn btn-secondary btn-action" href="#" target="_blank" rel="noopener noreferrer">
+            <i data-lucide="send"></i>
+            <span>Compartir</span>
+          </a>
+          <a id="modalDownload" class="btn btn-accent btn-action" href="#" download target="_blank" rel="noopener noreferrer">
+            <i data-lucide="download"></i>
+            <span>Descargar</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const nameEl = document.getElementById('userName');
+      const reloginLink = document.getElementById('reloginLink');
+      const storedName = localStorage.getItem('name') || localStorage.getItem('userName') || 'Usuario';
+      nameEl.textContent = storedName;
+
+      reloginLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        localStorage.removeItem('session');
+        window.location.href = 'login.html';
+      });
+
+      if (window.lucide?.createIcons) window.lucide.createIcons();
+    })();
+  </script>
+
+  <script type="module">
+    const SUPABASE_URL = "https://zjwfqdzdivoequidlqfs.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_peA6n-WeYvfRvZXujFev8w_yrCRxMJL";
+    const BUCKET = "material";
+
+    const $ = (id) => document.getElementById(id);
+
+    function storagePublicUrl(path) {
+      return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${encodeURI(path)}`;
+    }
+
+    function normalizeText(s) {
+      return (s || "")
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "");
+    }
+
+    function tagsToString(tags) {
+      if (!tags) return "";
+      if (Array.isArray(tags)) return tags.join(",");
+      return String(tags);
+    }
+
+    function itemMatches(item, typeFilter, catFilter, q) {
+      const tipo = (item.tipo || "").toLowerCase();
+      const categoria = (item.categoria || "").toLowerCase();
+      const titulo = normalizeText(item.titulo || "");
+      const tags = normalizeText(tagsToString(item.tags));
+
+      if (typeFilter !== "todo" && tipo !== typeFilter) return false;
+      if (catFilter !== "todo" && categoria !== catFilter) return false;
+
+      if (q) {
+        const qq = normalizeText(q);
+        const hay = `${titulo} ${tags} ${normalizeText(categoria)} ${normalizeText(tipo)}`;
+        if (!hay.includes(qq)) return false;
+      }
+      return true;
+    }
+
+    function waShareUrl(fileUrl, title) {
+      const text = `${title ? title + " - " : ""}${fileUrl}`;
+      return `https://wa.me/?text=${encodeURIComponent(text)}`;
+    }
+
+    async function loadMaterial() {
+      const url = `${SUPABASE_URL}/rest/v1/material?select=*&order=created_at.desc`;
+      const res = await fetch(url, {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      });
+      if (!res.ok) {
+        const t = await res.text().catch(() => "");
+        throw new Error(`Error cargando material: ${res.status} ${t}`);
+      }
+      return await res.json();
+    }
+
+    const resultsEl = $("results");
+    const CATEGORY_LABEL = {
+      producto: "Productos",
+      testimonio: "Testimonios",
+      recomendacion: "Recomendaciones",
+    };
+
+    function createItemCard(item) {
+      const tipo = (item.tipo || "").toLowerCase();
+      const categoria = (item.categoria || "").toLowerCase();
+      const title = item.titulo || "Sin título";
+
+      const fileUrl = storagePublicUrl(item.file_path || item.filePath || "");
+      const thumbPath = item.thumb_path || item.thumbPath || "";
+      const thumbUrl = thumbPath ? storagePublicUrl(thumbPath) : (tipo === "imagen" ? fileUrl : "");
+
+      const card = document.createElement("div");
+      card.className = "item";
+      card.dataset.tipo = tipo;
+      card.dataset.categoria = categoria;
+
+      const thumbWrap = document.createElement("div");
+      thumbWrap.className = `thumb-wrap ${tipo === 'video' ? 'thumb-video-wrap' : ''}`;
+
+      if (tipo === 'video') {
+        const video = document.createElement('video');
+        video.className = 'thumb thumb-video';
+        video.playsInline = true;
+        video.preload = 'metadata';
+        video.src = fileUrl;
+        video.muted = true;
+        video.setAttribute('controlslist', 'nodownload noremoteplayback');
+
+        const overlay = document.createElement('div');
+        overlay.className = 'video-overlay-controls';
+
+        const leftCtrls = document.createElement('div');
+        leftCtrls.className = 'video-main-controls';
+
+        const playBtn = document.createElement('button');
+        playBtn.type = 'button';
+        playBtn.className = 'vctrl-btn';
+        playBtn.setAttribute('aria-label', 'Reproducir o pausar');
+        playBtn.title = 'Reproducir / Pausar';
+        playBtn.innerHTML = '<i data-lucide="play"></i>';
+
+        const muteBtn = document.createElement('button');
+        muteBtn.type = 'button';
+        muteBtn.className = 'vctrl-btn';
+        muteBtn.setAttribute('aria-label', 'Activar o desactivar audio');
+        muteBtn.title = 'Audio on/off';
+        muteBtn.innerHTML = '<i data-lucide="volume-x"></i>';
+
+        leftCtrls.appendChild(playBtn);
+        leftCtrls.appendChild(muteBtn);
+        overlay.appendChild(leftCtrls);
+
+        const timeBadge = document.createElement('div');
+        timeBadge.className = 'vtime-badge';
+        timeBadge.textContent = '0:00';
+        overlay.appendChild(timeBadge);
+
+        const syncVideoUi = () => {
+          playBtn.innerHTML = video.paused ? '<i data-lucide="play"></i>' : '<i data-lucide="pause"></i>';
+          muteBtn.innerHTML = video.muted ? '<i data-lucide="volume-x"></i>' : '<i data-lucide="volume-2"></i>';
+          const secs = Math.floor(video.currentTime || 0);
+          const mm = Math.floor(secs / 60);
+          const ss = String(secs % 60).padStart(2, '0');
+          timeBadge.textContent = `${mm}:${ss}`;
+          if (window.lucide?.createIcons) window.lucide.createIcons();
+        };
+
+        const pauseOthers = () => {
+          document.querySelectorAll('video.thumb-video').forEach(v => { if (v !== video) v.pause(); });
+        };
+
+        playBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          try {
+            if (video.paused) {
+              pauseOthers();
+              await video.play();
+            } else {
+              video.pause();
+            }
+          } catch (_) {}
+          syncVideoUi();
+        });
+
+        muteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          video.muted = !video.muted;
+          if (!video.paused && video.volume === 0) video.volume = 1;
+          syncVideoUi();
+        });
+
+        thumbWrap.addEventListener('click', async (e) => {
+          if (e.target.closest('.vctrl-btn') || e.target.closest('.menu-wrap') || e.target.closest('.item-menu')) return;
+          e.stopPropagation();
+          try {
+            if (video.paused) {
+              pauseOthers();
+              await video.play();
+            } else {
+              video.pause();
+            }
+          } catch (_) {}
+          syncVideoUi();
+        });
+
+        video.addEventListener('play', () => { pauseOthers(); syncVideoUi(); });
+        video.addEventListener('pause', syncVideoUi);
+        video.addEventListener('ended', syncVideoUi);
+        video.addEventListener('timeupdate', syncVideoUi);
+        video.addEventListener('volumechange', syncVideoUi);
+
+        ['click','pointerdown','touchstart'].forEach(evt => {
+          video.addEventListener(evt, (e) => e.stopPropagation());
+        });
+
+        thumbWrap.appendChild(video);
+        thumbWrap.appendChild(overlay);
+        queueMicrotask(syncVideoUi);
+      } else {
+        const img = document.createElement("img");
+        img.className = "thumb";
+        img.alt = title;
+        img.loading = "lazy";
+        img.src = thumbUrl || "";
+        thumbWrap.appendChild(img);
+      }
+
+      card.appendChild(thumbWrap);
+
+      const meta = document.createElement("div");
+      meta.className = "item-meta";
+
+      const t = document.createElement("div");
+      t.className = "title";
+      t.textContent = title;
+      meta.appendChild(t);
+
+      const footer = document.createElement('div');
+      footer.className = 'item-footer';
+      footer.innerHTML = '<span class="item-spacer"></span>';
+
+      const menuWrap = document.createElement('div');
+      menuWrap.className = 'menu-wrap';
+
+      const menuBtn = document.createElement('button');
+      menuBtn.type = 'button';
+      menuBtn.className = 'menu-btn';
+      menuBtn.setAttribute('aria-label', 'Más opciones');
+      menuBtn.innerHTML = '<i data-lucide="more-vertical"></i>';
+
+      const menu = document.createElement('div');
+      menu.className = 'item-menu';
+
+      const shareBtn = document.createElement('button');
+      shareBtn.type = 'button';
+      shareBtn.className = 'menu-item';
+      shareBtn.innerHTML = '<i data-lucide="share-2"></i>Compartir';
+      shareBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        try {
+          if (navigator.share) {
+            await navigator.share({ title, url: fileUrl });
+          } else {
+            await navigator.clipboard.writeText(fileUrl);
+            alert('Enlace copiado');
+          }
+        } catch (_) {}
+        menu.classList.remove('show');
+      });
+
+      const copyBtn = document.createElement('button');
+      copyBtn.type = 'button';
+      copyBtn.className = 'menu-item';
+      copyBtn.innerHTML = '<i data-lucide="link"></i>Copiar enlace';
+      copyBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        try {
+          await navigator.clipboard.writeText(fileUrl);
+          alert('Enlace copiado');
+        } catch (_) {
+          prompt('Copia este enlace:', fileUrl);
+        }
+        menu.classList.remove('show');
+      });
+
+      const dl = document.createElement('a');
+      dl.className = 'menu-item';
+      dl.href = fileUrl;
+      dl.target = '_blank';
+      dl.rel = 'noopener noreferrer';
+      dl.download = '';
+      dl.innerHTML = '<i data-lucide="download"></i>Descargar';
+      dl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.remove('show');
+      });
+
+      menu.appendChild(shareBtn);
+      menu.appendChild(copyBtn);
+      menu.appendChild(dl);
+
+      menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const v = card.querySelector('video.thumb-video');
+        if (v) v.pause();
+        document.querySelectorAll('.item-menu.show').forEach(m => { if (m !== menu) m.classList.remove('show'); });
+        menu.classList.toggle('show');
+      });
+
+      menuWrap.appendChild(menuBtn);
+      menuWrap.appendChild(menu);
+      footer.appendChild(menuWrap);
+      meta.appendChild(footer);
+      card.appendChild(meta);
+
+      if (tipo !== 'video') card.addEventListener('click', () => openPreview({ tipo, title, fileUrl }));
+      [menuWrap, menu].forEach(el => el.addEventListener('click', (e) => e.stopPropagation()));
+
+      return card;
+    }
+
+    function renderCarousel(items) {
+      const car = document.createElement('div');
+      car.className = 'carousel';
+      for (const it of items) car.appendChild(createItemCard(it));
+      return car;
+    }
+
+    function renderSection(titleText, groupedByCategory) {
+      const section = document.createElement('div');
+      section.className = 'section';
+
+      const head = document.createElement('div');
+      head.className = 'section-title';
+      const h2 = document.createElement('h2');
+      h2.textContent = titleText;
+      head.appendChild(h2);
+      section.appendChild(head);
+
+      const cats = ['producto', 'testimonio', 'recomendacion'];
+      let any = false;
+
+      for (const c of cats) {
+        const list = groupedByCategory[c] || [];
+        if (!list.length) continue;
+        any = true;
+
+        const sub = document.createElement('div');
+        sub.className = 'subsection';
+
+        const h3 = document.createElement('h3');
+        h3.textContent = CATEGORY_LABEL[c] || c;
+        sub.appendChild(h3);
+
+        sub.appendChild(renderCarousel(list));
+        section.appendChild(sub);
+      }
+
+      if (!any) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'No hay resultados en esta sección.';
+        section.appendChild(empty);
+      }
+
+      return section;
+    }
+
+    function groupByCategory(items) {
+      const out = { producto: [], testimonio: [], recomendacion: [] };
+      for (const it of items) {
+        const c = (it.categoria || '').toLowerCase();
+        if (out[c]) out[c].push(it);
+      }
+      return out;
+    }
+
+    function renderResults(allItems, typeFilter, catFilter, q) {
+      resultsEl.innerHTML = '';
+      const filtered = allItems.filter(it => itemMatches(it, typeFilter, catFilter, q));
+
+      if (!filtered.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'No se encontraron resultados.';
+        resultsEl.appendChild(empty);
+        if (window.lucide?.createIcons) lucide.createIcons();
+        return;
+      }
+
+      const videos = filtered.filter(it => (it.tipo || '').toLowerCase() === 'video');
+      const imagenes = filtered.filter(it => (it.tipo || '').toLowerCase() === 'imagen');
+
+      if (typeFilter === 'todo') {
+        resultsEl.appendChild(renderSection('Videos', groupByCategory(videos)));
+        resultsEl.appendChild(renderSection('Imágenes', groupByCategory(imagenes)));
+      } else if (typeFilter === 'video') {
+        resultsEl.appendChild(renderSection('Videos', groupByCategory(videos)));
+      } else {
+        resultsEl.appendChild(renderSection('Imágenes', groupByCategory(imagenes)));
+      }
+
+      if (window.lucide?.createIcons) lucide.createIcons();
+    }
+
+    const modal = $('modal');
+    const modalTitle = $('modalTitle');
+    const modalMediaWrap = $('modalMediaWrap');
+    const modalClose = $('modalClose');
+    const modalShare = $('modalShare');
+    const modalDownload = $('modalDownload');
+
+    function openPreview({ tipo, title, fileUrl }) {
+      modalTitle.textContent = title || 'Vista previa';
+      modalMediaWrap.innerHTML = '';
+
+      if (tipo === 'video') {
+        const v = document.createElement('video');
+        v.className = 'modal-media';
+        v.controls = true;
+        v.playsInline = true;
+        v.autoplay = true;
+        v.muted = true;
+        v.src = fileUrl;
+        modalMediaWrap.appendChild(v);
+      } else {
+        const img = document.createElement('img');
+        img.className = 'modal-media';
+        img.alt = title || 'Imagen';
+        img.src = fileUrl;
+        modalMediaWrap.appendChild(img);
+      }
+
+      modalShare.href = waShareUrl(fileUrl, title || '');
+      modalDownload.href = fileUrl;
+      modalDownload.download = '';
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      if (window.lucide?.createIcons) lucide.createIcons();
+    }
+
+    function closePreview() {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      modalMediaWrap.innerHTML = '';
+    }
+
+    modalClose.addEventListener('click', closePreview);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closePreview(); });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closePreview();
+    });
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.item-menu.show').forEach(m => m.classList.remove('show'));
+    });
+
+    const materialType = $('materialType');
+    const contentType = $('contentType');
+    const qInput = $('q');
+    const btnSearch = $('btnSearch');
+
+    let ALL = [];
+    async function boot() {
+      try {
+        ALL = await loadMaterial();
+        renderResults(ALL, materialType.value, contentType.value, qInput.value.trim());
+      } catch (err) {
+        resultsEl.innerHTML = `<div class="empty">Error cargando material. Revisa tu tabla "material" y políticas RLS. (${String(err.message || err)})</div>`;
+      }
+    }
+
+    function apply() {
+      renderResults(ALL, materialType.value, contentType.value, qInput.value.trim());
+    }
+
+    btnSearch.addEventListener('click', apply);
+    qInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') apply(); });
+    materialType.addEventListener('change', apply);
+    contentType.addEventListener('change', apply);
+
+    if (window.lucide?.createIcons) lucide.createIcons();
+    boot();
+  </script>
+
+  <script src="app/app.js?v=1.0.2"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof loadDashboard === 'function') loadDashboard();
+    });
+  </script>
+</body>
+</html>

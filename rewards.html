@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recompensas</title>
+  <meta name="description" content="Vista preliminar del programa de recompensas para socios." />
+  <link rel="stylesheet" href="css/site.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    (function () {
+      try {
+        const raw = localStorage.getItem("session");
+        if (!raw) return location.replace("login.html");
+
+        const s = JSON.parse(raw);
+        if (!s?.expiresAt || Date.now() > s.expiresAt) {
+          localStorage.removeItem("session");
+          return location.replace("login.html");
+        }
+      } catch (e) {
+        localStorage.removeItem("session");
+        location.replace("login.html");
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="inicio-shell">
+    <header class="dash-topbar">
+      <a class="dash-menu-btn" href="menu.html" aria-label="Volver al menú">
+        <i data-lucide="menu"></i>
+      </a>
+
+      <div class="dash-socio">
+        <div class="dash-socio-line">
+          <strong id="userName">—</strong>
+        </div>
+        <div class="dash-relogin"></div>
+      </div>
+
+      <a href="#" id="reloginLink" aria-label="Cerrar sesión">
+        <i class="dash-inline-icon" data-lucide="log-out"></i>
+      </a>
+
+      <a class="topbar-rewards" href="rewards.html" aria-label="Programa de Recompensas">
+        <i data-lucide="gem"></i>
+      </a>
+    </header>
+
+    <main class="inicio-main">
+      <section class="inicio-center-card">
+        <aside class="hero-pane">
+          <div class="hero-badge">
+            <i class="dash-inline-icon" data-lucide="sparkles"></i>
+            Espacio en preparación
+          </div>
+          <h1 class="hero-title">Programa de recompensas</h1>
+          <p class="hero-desc">
+            Estamos preparando esta sección para presentar de forma clara los beneficios, criterios y próximos pasos del programa.
+          </p>
+          <div class="hero-pills">
+            <span class="pill">Reconocimiento</span>
+            <span class="pill">Beneficios</span>
+            <span class="pill">Seguimiento</span>
+          </div>
+        </aside>
+
+        <section class="actions-pane" aria-label="Vista preliminar de recompensas">
+          <h2 class="actions-title">Próximamente</h2>
+          <p class="lead">
+            Aquí encontrarás una vista simple y ordenada del esquema de recompensas, con información fácil de consultar y alineada al resto del sitio.
+          </p>
+          <div class="buttons">
+            <a class="btn btn-gold btn-action" href="menu.html">
+              <i class="dash-inline-icon" data-lucide="arrow-left"></i>
+              <span>Volver al menú</span>
+            </a>
+          </div>
+          <p class="footer-note">Estamos afinando el contenido para mantener la misma claridad visual y de uso.</p>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const nameEl = document.getElementById('userName');
+      const reloginLink = document.getElementById('reloginLink');
+      const storedName = localStorage.getItem('name') || localStorage.getItem('userName') || 'Usuario';
+      nameEl.textContent = storedName;
+
+      reloginLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        localStorage.removeItem('session');
+        window.location.href = 'login.html';
+      });
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    })();
+  </script>
+  <script src="app/app.js?v=1.0.2"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof loadDashboard === 'function') loadDashboard();
+    });
+  </script>
+</body>
+</html>

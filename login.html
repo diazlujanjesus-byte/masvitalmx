@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acceso</title>
+  <link rel="stylesheet" href="css/site.css" />
+
+  <script src="vendor/crypto-js.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <script>
+    if (typeof CryptoJS === "undefined") {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js"><\\/script>');
+    }
+  </script>
+  <script defer src="app/app.js"></script>
+</head>
+<body>
+  <main class="auth-shell">
+    <section class="auth-card" role="region" aria-label="Acceso">
+      <div class="auth-brand">
+        <img
+          class="auth-logo"
+          src="img/logo_brand_violeta.png"
+          data-logo-dark="img/logo_brand_violeta.png"
+          data-logo-light="img/logo_brand_lightmode.png"
+          alt="Logo"
+        />
+        <h1 id="authTitle" class="auth-title">Iniciar sesión</h1>
+        <p id="authSubtitle" class="auth-subtitle">Ingresa tu usuario y tu ID de socio</p>
+      </div>
+
+      <form id="loginForm" class="auth-form" autocomplete="off" novalidate>
+        <div id="welcomeBackBox" class="welcome-box hidden" aria-live="polite">
+          <!--<p class="welcome-kicker">Bienvenido de nuevo</p>-->
+          <!--<p class="welcome-name" id="welcomeUserName">Socio</p>-->
+          <p class="welcome-copy">Tu sesión sigue activa. Presiona continuar para entrar al menú.</p>
+        </div>
+
+        <div id="usernameField" class="field">
+          <label class="field-label" for="username">Usuario</label>
+          <div class="field-control">
+            <input
+              id="username"
+              class="field-input"
+              type="password"
+              inputmode="text"
+              autocomplete="username"
+              placeholder="Tu usuario"
+            />
+            <button
+              type="button"
+              class="field-eye toggle-visibility"
+              aria-label="Mostrar/ocultar usuario"
+              aria-pressed="false"
+              data-target="#username"
+              title="Mostrar/ocultar"
+            >👁</button>
+          </div>
+        </div>
+
+        <div id="passwordField" class="field">
+          <label class="field-label" for="password">ID de socio</label>
+          <div class="field-control">
+            <input
+              id="password"
+              class="field-input"
+              type="password"
+              inputmode="numeric"
+              autocomplete="current-password"
+              placeholder="Tu ID"
+            />
+            <button
+              type="button"
+              class="field-eye toggle-visibility"
+              aria-label="Mostrar/ocultar ID de socio"
+              aria-pressed="false"
+              data-target="#password"
+              title="Mostrar/ocultar"
+            >👁</button>
+          </div>
+          <p class="field-help">Tu “contraseña” es tu ID de afiliado o socio.</p>
+        </div>
+
+        <button id="loginBtn" class="btn btn-primary btn-full" type="button">
+          <span class="btn-label">Entrar</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+
+        <div id="loginStatus" class="auth-status" aria-live="polite"></div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
